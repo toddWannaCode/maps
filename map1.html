@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+
+    <title>map1</title>
+    <!-- Leaflet -->
+    <link rel="stylesheet" href="lib/leaflet/leaflet.css">
+    <link rel="stylesheet" href="lib/leaflet/leaflet.label.css">
+    <script src="lib/leaflet/leaflet.js"> </script>
+    <script src="lib/leaflet/leaflet.label.js"></script>
+    <script src="data/opstini1.3.geojson"></script>
+    <link rel="stylesheet" href="map1css.css">
+
+</head>
+<body>
+    <div id="map">
+        <script>
+            
+            var opstiniLayer;
+            
+          function highlightFeature(e){
+				var layer = e.target;
+				layer.setStyle(
+					{
+						weight : 5,
+						color : 'black',
+						fillColor : 'white',
+						fillOpacity : 0.2
+					}
+                   
+				);
+              if(!L.Browser.ie && !L.Browser.opera){
+                  layer.bringToFront();
+              }
+			}
+            
+            function resetHighlight(e){
+                opstiniLayer.resetStyle(e.target);
+			}
+            
+            function opstiniOnEachFeature(feature, layer) {
+               
+                layer.bindPopup("Општина " + feature.properties.NAME_1 + "<br>Број на жители: " + feature.properties.pop + "<br>Површина(km^2): " + feature.properties.povrsina);
+                layer.on({
+                    mouseover : highlightFeature,
+                    mouseout : resetHighlight
+                }
+                    );
+            }
+            
+            var map = L.map('map').setView([41.617786, 21.732258], 8);
+            map.createPane('labels');
+            map.getPane('labels').style.zIndex = 600;
+            map.getPane('labels').style.pointerEvents = 'none';
+            var labelsLayer = L.tileLayer('http://a.basemaps.cartocdn.com/light_only_labels/{z}/{x}/{y}.png', {
+                pane: 'labels',
+                attribution: 'Општини во РМ'
+            }).addTo(map);
+            var landLayer = L.tileLayer('https://api.mapbox.com/styles/v1/nenadkocev/cj46to9wx0kri2rp9kr5zkiu3/tiles/256/{z}/{x}/{y}?access_token=pk.eyJ1IjoibmVuYWRrb2NldiIsImEiOiJjajM0cWJwOWQwMDF6MndvMHkwaWI3eGs1In0.3ivY_nuqN_v7LXTHJfYe3w').addTo(map);
+            opstiniLayer = L.geoJSON(granici, {
+                                     //style : opstiniStyle,
+                                     onEachFeature: opstiniOnEachFeature
+                                     });
+            opstiniLayer.addTo(map);
+            map.fitBounds(opstiniLayer.getBounds());
+        </script>
+    </div>
+</body>
+</html>
